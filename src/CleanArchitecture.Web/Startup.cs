@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using StructureMap;
 using StructureMap.AutoMocking;
+using CleanArchitecture.Infrastructure.Services;
 
 namespace CleanArchitecture.Web
 {
@@ -62,6 +63,7 @@ namespace CleanArchitecture.Web
                 // TODO: Move to Infrastucture Registry
                 config.For(typeof(IRepository<>)).Add(typeof(EfRepository<>));
                 config.For(typeof(IRepository<Guestbook>)).Add(typeof(GuestbookRepository));
+                config.For(typeof(IMessageSender)).Add(typeof(EmailMessageSenderService));
 
                 //Populate the container using the service collection
                 config.Populate(services);
@@ -102,7 +104,25 @@ namespace CleanArchitecture.Web
                 Description = "Test Description Two"
             });
             dbContext.SaveChanges();
+
+            var guestbook = new Guestbook
+            {
+                Id = 1,
+                Name = "Perry",
+            };
+            dbContext.Guestbooks.Add(guestbook);
+            guestbook.Entries.Add(new GuestbookEntry
+            {
+                Id = 1,
+                EmailAddress = "perry@mem.com",
+                Message="Hello",
+            });
+            dbContext.SaveChanges();
+
+
         }
+
+
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,9 +12,13 @@ namespace CleanArchitecture.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IRepository<Guestbook> _guestbookRepository;
-        public HomeController(IRepository<Guestbook> guestbookRepository )
+        private readonly IMessageSender _messageSender;
+        private readonly IGuestbookService _guestbookService;
+        public HomeController(IRepository<Guestbook> guestbookRepository, IMessageSender messageSender, IGuestbookService guestbookService )
         {
             _guestbookRepository = guestbookRepository;
+            _messageSender = messageSender;
+            _guestbookService = guestbookService;
         }
         [HttpPost]
         public IActionResult Index(HomePageViewModel model)
@@ -22,8 +26,8 @@ namespace CleanArchitecture.Web.Controllers
             if (ModelState.IsValid)
             {
                 var guestbook = _guestbookRepository.GetById(1);
-                guestbook.Entries.Add(model.NewEntry);
-                _guestbookRepository.Update(guestbook);
+                guestbook.AddEntry(model.NewEntry);
+                _guestbookRepository.Update(guestbook);        
                 model.PreviousEntries.Clear();
                 model.PreviousEntries.AddRange(guestbook.Entries);
             }
